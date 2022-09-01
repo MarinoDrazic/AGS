@@ -1,5 +1,7 @@
 let expect = require("chai").expect;
 let assert = require("chai").assert;
+const vm = require("vm");
+const testConfigData = require("./testconfig.json");
 
 const { default: axios } = require("axios");
 let fs = require("fs");
@@ -14,43 +16,58 @@ const getDirectories = (source) =>
 
 describe("AGS Vj7", function () {
   let files = getDirectories(defaultSourcePath);
-  let testConfig;
-  
-  before(function () {
-    return axios.get("http://localhost:3000/api/config").then((res) => {
-      testConfig = res.data;
-    });
-  });
 
-  files.forEach((file) => {
-    describe(`AGS student folder: ${file} `, function () {
-      describe("Zadatak1", function () {
-        let zadatak1Dir = `${defaultSourcePath}/${file}/jsKod/kod_00-staticka.js`;
+  describe(`Running test ${testConfigData.name}`, function () {
+    files.forEach((file) => {
+      describe(`AGS student folder: ${file} `, function () {
+        testConfigData.testParams.forEach((testParam) => {
+          let workDirectory = `${defaultSourcePath}/${file}/${testParam.file}`;
 
-        it("testConfig should be defined", function () {
-          expect(testConfig).to.not.be.undefined;
-        });
+          it(`should have ${testParam.file} file`, function () {
+            expect(fs.existsSync(workDirectory)).to.equal(true);
+          });
 
-        it(`should have kod_00-staticka.js folder`, function () {
-          expect(fs.existsSync(zadatak1Dir)).to.equal(true);
-        });
+          if (testParam.checkSyntax) {
+            it("check file for syntax errors", function () {
+              let code = fs.readFileSync(workDirectory, "utf8");
+              let script = new vm.Script(code);
+              expect(script.runInNewContext()).to.not.throw;
+            });
+          }
 
-        it('it should contain class named "Postavke"', function () {
-          let kod = fs.readFileSync(zadatak1Dir).toString();
-          expect(kod).to.contain("class Postavke");
-        });
+          it(`it should contain class named ${testParam.className}`, function () {
+            let kod = fs.readFileSync(workDirectory).toString();
+            expect(kod).to.contain(`class ${testParam.className}`);
+          });
 
-        it('it should contain class named "Postavke" with constructor', function () {
-          let kod = fs.readFileSync(zadatak1Dir).toString();
-          expect(kod).to.contain("constructor");
-        });
+          if (testParam.constructor) {
+            it(`class ${testParam.className} should contain constructor `, function () {
+              let kod = fs.readFileSync(workDirectory).toString();
+              expect(kod).to.contain(`constructor`);
+            });
+          }
 
-        it("class postavke should contain static properties", function () {
-          let kod = fs.readFileSync(zadatak1Dir).toString();
-          expect(kod).to.contain("static coins");
-          expect(kod).to.contain("static spikes");
-          expect(kod).to.contain("static dinosaur");
-          expect(kod).to.contain("static cilj");
+          if (testParam.properties) {
+            it(`class ${testParam.className} should contain static properties`, function () {
+              let kod = fs.readFileSync(workDirectory).toString();
+              testParam.properties.forEach((property) => {
+                expect(kod).to.contain(
+                  `${testParam.isStatic ? "static" : ""} ${property}`
+                );
+              });
+            });
+          }
+
+          if (testParam.functions) {
+            it(`class ${testParam.className} should contain static functions`, function () {
+              let kod = fs.readFileSync(workDirectory).toString();
+              testParam.functions.forEach((functions) => {
+                expect(kod).to.contain(
+                  `${testParam.isStatic ? "static" : ""} ${functions}`
+                );
+              });
+            });
+          }
         });
       });
     });

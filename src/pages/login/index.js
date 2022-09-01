@@ -1,27 +1,38 @@
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Layout from "../../components/layoutMain";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { useSelector, useDispatch } from "react-redux";
+import { setUser } from "../../features/userSlice";
+import { useRouter } from "next/router";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const auth = getAuth();
+  const user = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+  const router = useRouter();
 
   const tryLoginToFirebase = async () => {
     console.log("tryLoginToFirebase", email, password);
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        // Signed in
         const user = userCredential.user;
-        console.log(user);
-        // ...
+        dispatch(setUser(user));
+        router.replace("/ags");
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
       });
   };
+
+  useEffect(() => {
+    if (user.loggedIn) {
+      router.replace("/ags");
+    }
+  }, [user]);
 
   return (
     <Layout>

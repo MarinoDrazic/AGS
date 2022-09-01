@@ -1,19 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Layout from "../../components/layoutMain";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-
+import { useSelector, useDispatch } from "react-redux";
+import { setUser } from "../../features/userSlice";
+import { useRouter } from "next/router";
 function SignUp() {
   const auth = getAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState(""); // I'm not accually going to double check the password, it's just for looks.
+  const user = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+  const router = useRouter();
 
   const trySignUpToFirebase = async () => {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        // Signed in
         const user = userCredential.user;
-        console.log(user);
-        // ...
+        dispatch(setUser(user));
+        router.replace("/ags");
       })
       .catch((error) => {
         const errorCode = error.code;
@@ -22,6 +26,13 @@ function SignUp() {
         // ..
       });
   };
+
+  useEffect(() => {
+    if (user.loggedIn) {
+      router.replace("/ags");
+    }
+  }, [user]);
+
   return (
     <Layout>
       <section className="bg-gray-50 dark:bg-gray-900">

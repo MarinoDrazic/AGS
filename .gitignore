@@ -5,6 +5,7 @@
 /.pnp
 /targets
 .pnp.js
+mochawesome-report/
 
 # testing
 /coverage

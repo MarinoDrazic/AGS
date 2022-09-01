@@ -14,7 +14,7 @@ const firebaseConfig = {
   measurementId: "G-WBNXDCMTSV",
 };
 let analytics;
-let firestore;
+let db;
 let auth;
 if (firebaseConfig?.projectId) {
   // Initialize Firebase
@@ -26,7 +26,7 @@ if (firebaseConfig?.projectId) {
   }
 
   // Access Firebase services using shorthand notation
-  firestore = getFirestore();
+  db = getFirestore(app);
 }
 
-export { analytics, firestore, auth };
+export { analytics, db, auth };
