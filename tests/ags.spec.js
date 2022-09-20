@@ -35,39 +35,60 @@ describe("AGS Vj7", function () {
             });
           }
 
-          it(`it should contain class named ${testParam.className}`, function () {
-            let kod = fs.readFileSync(workDirectory).toString();
-            expect(kod).to.contain(`class ${testParam.className}`);
+          testParam.classes.forEach((classData) => {
+            it(`it should contain class named ${classData.className}`, function () {
+              let kod = fs.readFileSync(workDirectory).toString();
+              expect(kod).to.contain(`class ${classData.className}`);
+            });
+
+            if (classData.constructor) {
+              it(`class ${classData.className} should contain constructor `, function () {
+                let kod = fs.readFileSync(workDirectory).toString();
+                expect(kod).to.contain(`constructor`);
+              });
+            }
+
+            if (classData.inherits && classData.inherits.length > 0) {
+              it(`class ${classData.className} should extend class ${classData.inherits} `, function () {
+                let kod = fs.readFileSync(workDirectory).toString();
+                expect(kod).to.contain(
+                  `class ${classData.className} extends ${classData.inherits}`
+                );
+              });
+            }
+
+            if (classData.properties) {
+              it(`class ${classData.className} should contain static properties`, function () {
+                let kod = fs.readFileSync(workDirectory).toString();
+                classData.properties.forEach((property) => {
+                  expect(kod).to.contain(
+                    `${classData.isStatic ? "static" : ""} ${property}`
+                  );
+                });
+              });
+            }
+
+            if (classData.functions) {
+              it(`class ${classData.className} should contain ${
+                classData.isStatic ? "static" : ""
+              } function`, function () {
+                let kod = fs.readFileSync(workDirectory).toString();
+                classData.functions.forEach((functionData) => {
+                  if (functionData.overload) {
+                    let regex = new RegExp(`static ${functionData.name}`, "g");
+                    const count = (kod.match(regex) || []).length;
+                    expect(count).to.be.at.least(2);
+                  } else {
+                    expect(kod, `class ${classData.className}`).to.contain(
+                      `${classData.isStatic ? "static" : ""} ${
+                        functionData.name
+                      }`
+                    );
+                  }
+                });
+              });
+            }
           });
-
-          if (testParam.constructor) {
-            it(`class ${testParam.className} should contain constructor `, function () {
-              let kod = fs.readFileSync(workDirectory).toString();
-              expect(kod).to.contain(`constructor`);
-            });
-          }
-
-          if (testParam.properties) {
-            it(`class ${testParam.className} should contain static properties`, function () {
-              let kod = fs.readFileSync(workDirectory).toString();
-              testParam.properties.forEach((property) => {
-                expect(kod).to.contain(
-                  `${testParam.isStatic ? "static" : ""} ${property}`
-                );
-              });
-            });
-          }
-
-          if (testParam.functions) {
-            it(`class ${testParam.className} should contain static functions`, function () {
-              let kod = fs.readFileSync(workDirectory).toString();
-              testParam.functions.forEach((functions) => {
-                expect(kod).to.contain(
-                  `${testParam.isStatic ? "static" : ""} ${functions}`
-                );
-              });
-            });
-          }
         });
       });
     });

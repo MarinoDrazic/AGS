@@ -10,6 +10,7 @@ import {
   collection,
   getDocs,
 } from "firebase/firestore";
+import { uuid } from "uuidv4";
 
 function Create() {
   const [tests, setTests] = useState([]);
@@ -19,13 +20,21 @@ function Create() {
     description: "",
     testParams: [
       {
+        id: uuid(),
+
         file: "",
         checkSyntax: false,
-        className: "",
-        static: false,
-        constructor: false,
-        properties: [],
-        functions: [],
+        classes: [
+          {
+            id: uuid(),
+            properties: [],
+            constructor: false,
+            className: "",
+            isStatic: false,
+            inherits: "",
+            functions: [{ name: "", overload: false }],
+          },
+        ],
       },
     ],
   });
@@ -33,8 +42,8 @@ function Create() {
   const getTestsFromFirebase = async () => {
     const querySnapshot = await getDocs(collection(db, "tests"));
     setTests([]);
-    querySnapshot.forEach((doc) => {
-      setTests((tests) => [...tests, { id: doc.id, ...doc.data() }]);
+    querySnapshot.forEach((documnet) => {
+      setTests((tests) => [...tests, { id: documnet.id, ...documnet.data() }]);
     });
   };
 
@@ -55,8 +64,16 @@ function Create() {
       ...(description && { description }),
       ...(testParams && { testParams }),
     };
-    console.log(testObj);
     setTestChanges(testObj);
+  };
+
+  const propagateChangesFromFileForm = (testParam) => {
+    const otherTestParams = testChanges?.testParams?.filter(
+      (tp) => tp.id !== testParam.id
+    );
+    testBuilder(testChanges, {
+      testParams: [...otherTestParams, testParam],
+    });
   };
 
   const commitChanges = async () => {
@@ -74,13 +91,22 @@ function Create() {
       description: "",
       testParams: [
         {
+          id: uuid(),
+
           file: "",
           checkSyntax: false,
-          className: "",
-          static: false,
-          constructor: false,
-          properties: [],
-          functions: [],
+          classes: [
+            {
+              id: uuid(),
+
+              properties: [],
+              constructor: false,
+              className: "",
+              isStatic: false,
+              inherits: "",
+              functions: [{ name: "", overload: false }],
+            },
+          ],
         },
       ],
     });
@@ -108,13 +134,21 @@ function Create() {
                             description: "",
                             testParams: [
                               {
+                                id: uuid(),
+
                                 file: "",
                                 checkSyntax: false,
-                                className: "",
-                                static: false,
-                                constructor: false,
-                                properties: [],
-                                functions: [],
+                                classes: [
+                                  {
+                                    id: uuid(),
+                                    properties: [],
+                                    constructor: false,
+                                    className: "",
+                                    isStatic: false,
+                                    inherits: "",
+                                    functions: [{ name: "", overload: false }],
+                                  },
+                                ],
                               },
                             ],
                           })
@@ -201,7 +235,9 @@ function Create() {
                         <FileForm
                           key={index}
                           fileData={param}
-                          testBuilder={testBuilder}
+                          testBuilder={(testParam) =>
+                            propagateChangesFromFileForm(testParam)
+                          }
                         />
                       );
                     })}
@@ -214,13 +250,23 @@ function Create() {
                                 testParams: [
                                   ...testChanges.testParams,
                                   {
+                                    id: uuid(),
+
                                     file: "",
                                     checkSyntax: false,
-                                    className: "",
-                                    static: false,
-                                    constructor: false,
-                                    properties: [],
-                                    functions: [],
+                                    classes: [
+                                      {
+                                        id: uuid(),
+                                        properties: [],
+                                        constructor: false,
+                                        className: "",
+                                        isStatic: false,
+                                        inherits: "",
+                                        functions: [
+                                          { name: "", overload: false },
+                                        ],
+                                      },
+                                    ],
                                   },
                                 ],
                               });

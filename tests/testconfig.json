@@ -1,1 +1,23 @@
-{"description":"Test vjezbe 7 OOP","id":"bVgWfGvo39bUV8jCYHjP","createdBy":"CuErhHs9mEPryHXcx2xf4bSo4sC3","name":"Test VJ711","testParams":[{"checkSyntax":true,"file":"jsKod/kod_00-staticka.js","properties":["coins","spikes","cilj"],"constructor":true,"className":"Postavke","isStatic":true,"functions":["getCoins","getLives"]}]}
+{
+  "description": "Test vjezbe 7 OOP",
+  "id": "bVgWfGvo39bUV8jCYHjP",
+  "createdBy": "CuErhHs9mEPryHXcx2xf4bSo4sC3",
+  "name": "Test VJ711",
+  "testParams": [
+    {
+      "id": "bVgWfGvo39bUV8jCYHjP",
+      "checkSyntax": true,
+      "file": "jsKod/kod_00-staticka.js",
+      "classes": [
+        {
+          "properties": ["coins", "spikes", "cilj"],
+          "constructor": true,
+          "className": "Postavke",
+          "isStatic": true,
+          "inherits": "EventEmitter",
+          "functions": [{ "name": "reset", "overload": true }]
+        }
+      ]
+    }
+  ]
+}
