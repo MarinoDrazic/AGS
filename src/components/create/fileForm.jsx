@@ -6,7 +6,9 @@ const FileForm = (props) => {
   const [fileData, setFileData] = useState(props.fileData);
 
   useEffect(() => {
-    setFileData(props.fileData);
+    if (JSON.stringify(fileData) !== JSON.stringify(props.fileData)) {
+      setFileData(props.fileData);
+    }
   }, [props.fileData]);
 
   useEffect(() => {
